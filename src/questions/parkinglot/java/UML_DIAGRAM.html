@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parking Lot — UML Class Diagram</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #475569;
+    margin: 36px 0 14px 4px;
+    padding-left: 10px;
+    border-left: 3px solid #334155;
+  }
+
+  /* ── ROW / GRID ── */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+
+  /* ── UML BOX BASE ── */
+  .uml-box {
+    border-radius: 10px;
+    border: 1.5px solid;
+    min-width: 220px;
+    flex: 1 1 220px;
+    max-width: 340px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .uml-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  /* ── HEADER ── */
+  .uml-head {
+    padding: 10px 14px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stereotype {
+    font-size: 0.67rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    opacity: 0.75;
+    font-style: italic;
+  }
+  .classname {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .pkg {
+    font-size: 0.62rem;
+    opacity: 0.5;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+  .pattern-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 5px;
+  }
+  .chip {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 20px;
+    border: 1px solid;
+    opacity: 0.85;
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .uml-section {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 14px;
+  }
+  .section-title {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.4;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+
+  /* ── MEMBERS ── */
+  .uml-row {
+    font-size: 0.72rem;
+    padding: 2px 0;
+    display: flex;
+    gap: 4px;
+    align-items: baseline;
+    line-height: 1.4;
+  }
+  .vis-pub  { color: #4ade80; font-weight: 700; font-size: 0.75rem; }
+  .vis-priv { color: #f87171; font-weight: 700; font-size: 0.75rem; }
+  .vis-prot { color: #fb923c; font-weight: 700; font-size: 0.75rem; }
+  .vis-name { color: #e2e8f0; }
+  .vis-type { color: #94a3b8; font-size: 0.68rem; }
+  .vis-param { color: #64748b; font-size: 0.67rem; font-style: italic; }
+  .vis-static { text-decoration: underline; }
+  .vis-abstract { font-style: italic; }
+  .badge-sync {
+    font-size: 0.55rem;
+    background: #1e3a5f;
+    color: #60a5fa;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-left: 2px;
+  }
+
+  /* ── COLOR THEMES ── */
+
+  /* Entity — violet */
+  .entity-box {
+    background: linear-gradient(145deg, #1e1030, #16092a);
+    border-color: #6d28d9;
+  }
+  .entity-box .uml-head { background: linear-gradient(135deg, #2d1458, #1e0d40); }
+  .entity-box .stereotype { color: #a78bfa; }
+  .entity-box .classname  { color: #ddd6fe; }
+  .entity-box .chip { border-color: #7c3aed; color: #c4b5fd; background: rgba(109,40,217,0.2); }
+
+  /* Enum — amber */
+  .enum-box {
+    background: linear-gradient(145deg, #1c1508, #130f04);
+    border-color: #d97706;
+  }
+  .enum-box .uml-head { background: linear-gradient(135deg, #3d2a05, #2a1d04); }
+  .enum-box .stereotype { color: #fbbf24; }
+  .enum-box .classname  { color: #fde68a; }
+  .enum-box .chip { border-color: #b45309; color: #fcd34d; background: rgba(180,83,9,0.2); }
+
+  /* Strategy Fee — emerald */
+  .fee-box {
+    background: linear-gradient(145deg, #061812, #04130d);
+    border-color: #059669;
+  }
+  .fee-box .uml-head { background: linear-gradient(135deg, #063d24, #042e1a); }
+  .fee-box .stereotype { color: #34d399; }
+  .fee-box .classname  { color: #a7f3d0; }
+  .fee-box .chip { border-color: #065f46; color: #6ee7b7; background: rgba(5,150,105,0.2); }
+
+  /* Strategy Spot — cyan */
+  .spot-box {
+    background: linear-gradient(145deg, #041820, #031218);
+    border-color: #0891b2;
+  }
+  .spot-box .uml-head { background: linear-gradient(135deg, #063d50, #042e3c); }
+  .spot-box .stereotype { color: #22d3ee; }
+  .spot-box .classname  { color: #a5f3fc; }
+  .spot-box .chip { border-color: #0e7490; color: #67e8f9; background: rgba(8,145,178,0.2); }
+
+  /* Singleton — orange */
+  .singleton-box {
+    background: linear-gradient(145deg, #1a0f04, #130b03);
+    border-color: #ea580c;
+  }
+  .singleton-box .uml-head { background: linear-gradient(135deg, #431408, #2f0e06); }
+  .singleton-box .stereotype { color: #fb923c; }
+  .singleton-box .classname  { color: #fed7aa; }
+  .singleton-box .chip { border-color: #c2410c; color: #fdba74; background: rgba(234,88,12,0.2); }
+
+  /* Exception — rose */
+  .exception-box {
+    background: linear-gradient(145deg, #1a0810, #13060b);
+    border-color: #e11d48;
+  }
+  .exception-box .uml-head { background: linear-gradient(135deg, #4c0519, #380412); }
+  .exception-box .stereotype { color: #fb7185; }
+  .exception-box .classname  { color: #fecdd3; }
+  .exception-box .chip { border-color: #be123c; color: #fda4af; background: rgba(225,29,72,0.2); }
+
+  /* ── RELATIONSHIPS TABLE ── */
+  .rel-section {
+    margin-top: 48px;
+    background: #131821;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 28px 32px;
+  }
+  .rel-section h2 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 20px;
+  }
+  .rel-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+  .rel-table th {
+    text-align: left;
+    padding: 7px 12px;
+    background: #1e293b;
+    color: #64748b;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .rel-table th:first-child { border-radius: 6px 0 0 6px; }
+  .rel-table th:last-child  { border-radius: 0 6px 6px 0; }
+  .rel-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #1e2535;
+    color: #cbd5e1;
+    vertical-align: middle;
+  }
+  .rel-table tr:last-child td { border-bottom: none; }
+  .rel-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .arrow { font-size: 1rem; color: #475569; }
+  .rel-type {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .r-inherit  { background: #2d1458; color: #c4b5fd; border: 1px solid #6d28d9; }
+  .r-impl     { background: #063d24; color: #6ee7b7; border: 1px solid #059669; }
+  .r-compose  { background: #1e2d40; color: #7dd3fc; border: 1px solid #0284c7; }
+  .r-assoc    { background: #2a1d04; color: #fcd34d; border: 1px solid #d97706; }
+  .r-dep      { background: #1a0f04; color: #fdba74; border: 1px solid #ea580c; }
+  .r-uses     { background: #1a0810; color: #fda4af; border: 1px solid #e11d48; }
+
+  .src-name { color: #a5b4fc; font-weight: 600; }
+  .tgt-name { color: #67e8f9; font-weight: 600; }
+
+  /* ── LEGEND ── */
+  .legend {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .legend-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #131821;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    color: #94a3b8;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-entity    { background: #7c3aed; }
+  .dot-enum      { background: #d97706; }
+  .dot-fee       { background: #059669; }
+  .dot-spot      { background: #0891b2; }
+  .dot-singleton { background: #ea580c; }
+  .dot-exception { background: #e11d48; }
+
+  /* ── DESIGN PATTERN BANNER ── */
+  .pattern-banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 36px;
+    justify-content: center;
+  }
+  .pattern-pill {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid;
+  }
+  .pp-singleton { background: rgba(234,88,12,0.12); border-color: #ea580c; color: #fb923c; }
+  .pp-strategy  { background: rgba(5,150,105,0.12); border-color: #059669; color: #34d399; }
+  .pp-template  { background: rgba(109,40,217,0.12); border-color: #6d28d9; color: #a78bfa; }
+</style>
+</head>
+<body>
+
+<h1>Parking Lot System</h1>
+<div class="subtitle">UML Class Diagram &nbsp;·&nbsp; Java Implementation</div>
+
+<!-- Pattern Badges -->
+<div class="pattern-banner">
+  <span class="pattern-pill pp-singleton">Singleton — ParkingLot</span>
+  <span class="pattern-pill pp-strategy">Strategy — FeeStrategy &amp; SpotAllocationStrategy</span>
+  <span class="pattern-pill pp-template">Template Method — Vehicle (abstract)</span>
+</div>
+
+<!-- ═══════════════════════════ ENTITY ═══════════════════════════ -->
+<div class="section-label">entity package</div>
+<div class="row">
+
+  <!-- Vehicle (abstract) -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«abstract class»</span>
+      <span class="classname">Vehicle</span>
+      <span class="pkg">entity</span>
+      <div class="pattern-chips">
+        <span class="chip">Template Method</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">licensePlate</span><span class="vis-type">: String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">size</span><span class="vis-type">: VehicleSize</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">Vehicle</span><span class="vis-param">(licensePlate, size)</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getLicensePlate</span><span class="vis-param">() : String</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getSize</span><span class="vis-param">() : VehicleSize</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">toString</span><span class="vis-param">() : String</span></div>
+    </div>
+  </div>
+
+  <!-- Bike -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">Bike</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Constructor</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">Bike</span><span class="vis-param">(licensePlate)</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Note</div>
+      <div class="uml-row"><span class="vis-type">size fixed → SMALL</span></div>
+    </div>
+  </div>
+
+  <!-- Car -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">Car</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Constructor</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">Car</span><span class="vis-param">(licensePlate)</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Note</div>
+      <div class="uml-row"><span class="vis-type">size fixed → MEDIUM</span></div>
+    </div>
+  </div>
+
+  <!-- Truck -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">Truck</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Constructor</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">Truck</span><span class="vis-param">(licensePlate)</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Note</div>
+      <div class="uml-row"><span class="vis-type">size fixed → LARGE</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="row">
+
+  <!-- VehicleSize enum -->
+  <div class="uml-box enum-box">
+    <div class="uml-head">
+      <span class="stereotype">«enumeration»</span>
+      <span class="classname">VehicleSize</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Values</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">SMALL</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">MEDIUM</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">LARGE</span></div>
+    </div>
+  </div>
+
+  <!-- ParkingSpot -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">ParkingSpot</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">spotId</span><span class="vis-type">: String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">spotSize</span><span class="vis-type">: VehicleSize</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">parkedVehicle</span><span class="vis-type">: Vehicle</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">isSpotAvailable</span><span class="vis-param">() : boolean</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">canVehicleFit</span><span class="vis-param">(size) : boolean</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">parkVehicle</span><span class="vis-param">(vehicle) : void</span><span class="badge-sync">sync</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">unparkVehicle</span><span class="vis-param">() : Vehicle</span><span class="badge-sync">sync</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getSpotId</span><span class="vis-param">() : String</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getSpotSize</span><span class="vis-param">() : VehicleSize</span></div>
+    </div>
+  </div>
+
+  <!-- ParkingFloor -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">ParkingFloor</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">floorNumber</span><span class="vis-type">: int</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">parkingSpots</span><span class="vis-type">: List&lt;ParkingSpot&gt;</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">findAvailableParkingSpot</span><span class="vis-param">(size) : ParkingSpot</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getAvailableSpotCountBySize</span><span class="vis-param">(size) : int</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">displayAvailability</span><span class="vis-param">() : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getFloorNumber</span><span class="vis-param">() : int</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getParkingSpots</span><span class="vis-param">() : List&lt;ParkingSpot&gt;</span></div>
+    </div>
+  </div>
+
+  <!-- ParkingTicket -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">ParkingTicket</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">ticketId</span><span class="vis-type">: String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">vehicle</span><span class="vis-type">: Vehicle</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">spot</span><span class="vis-type">: ParkingSpot</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">entryTime</span><span class="vis-type">: LocalDateTime</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">exitTime</span><span class="vis-type">: LocalDateTime</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getTicketId</span><span class="vis-param">() : String</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getVehicle</span><span class="vis-param">() : Vehicle</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getSpot</span><span class="vis-param">() : ParkingSpot</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">setExitTime</span><span class="vis-param">(time) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getTotalParkingDuration</span><span class="vis-param">() : long</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ STRATEGY: FEE ═══════════════════════════ -->
+<div class="section-label">strategy.fee package</div>
+<div class="row">
+
+  <!-- FeeStrategy interface -->
+  <div class="uml-box fee-box">
+    <div class="uml-head">
+      <span class="stereotype">«interface»</span>
+      <span class="classname">FeeStrategy</span>
+      <span class="pkg">strategy.fee</span>
+      <div class="pattern-chips">
+        <span class="chip">Strategy</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">calculateFee</span><span class="vis-param">(ticket) : double</span></div>
+    </div>
+  </div>
+
+  <!-- HourlyFeeStrategy -->
+  <div class="uml-box fee-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">HourlyFeeStrategy</span>
+      <span class="pkg">strategy.fee</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">hourlyFee</span><span class="vis-type">: float</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">calculateFee</span><span class="vis-param">(ticket) : double</span></div>
+      <div class="uml-row"><span class="vis-type" style="padding-left:14px; opacity:0.55; font-size:0.65rem;">→ duration × hourlyFee</span></div>
+    </div>
+  </div>
+
+  <!-- FlatRateFeeStrategy -->
+  <div class="uml-box fee-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">FlatRateFeeStrategy</span>
+      <span class="pkg">strategy.fee</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">flatRate</span><span class="vis-type">: double</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">calculateFee</span><span class="vis-param">(ticket) : double</span></div>
+      <div class="uml-row"><span class="vis-type" style="padding-left:14px; opacity:0.55; font-size:0.65rem;">→ flatRate (always)</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ STRATEGY: SPOT ═══════════════════════════ -->
+<div class="section-label">strategy.spot package</div>
+<div class="row">
+
+  <!-- SpotAllocationStrategy interface -->
+  <div class="uml-box spot-box">
+    <div class="uml-head">
+      <span class="stereotype">«interface»</span>
+      <span class="classname">SpotAllocationStrategy</span>
+      <span class="pkg">strategy.spot</span>
+      <div class="pattern-chips">
+        <span class="chip">Strategy</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">findSpot</span><span class="vis-param">(floors, size) : ParkingSpot</span></div>
+    </div>
+  </div>
+
+  <!-- NearestFirstStrategy -->
+  <div class="uml-box spot-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">NearestFirstStrategy</span>
+      <span class="pkg">strategy.spot</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">findSpot</span><span class="vis-param">(floors, size) : ParkingSpot</span></div>
+      <div class="uml-row"><span class="vis-type" style="padding-left:14px; opacity:0.55; font-size:0.65rem;">→ first available on lowest floor</span></div>
+    </div>
+  </div>
+
+  <!-- BestFitStrategy -->
+  <div class="uml-box spot-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">BestFitStrategy</span>
+      <span class="pkg">strategy.spot</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">findSpot</span><span class="vis-param">(floors, size) : ParkingSpot</span></div>
+      <div class="uml-row"><span class="vis-type" style="padding-left:14px; opacity:0.55; font-size:0.65rem;">→ exact size first, then next larger</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ SINGLETON ═══════════════════════════ -->
+<div class="section-label">singleton package</div>
+<div class="row">
+
+  <!-- ParkingLot -->
+  <div class="uml-box singleton-box" style="max-width: 420px;">
+    <div class="uml-head">
+      <span class="stereotype">«singleton»</span>
+      <span class="classname">ParkingLot</span>
+      <span class="pkg">singleton</span>
+      <div class="pattern-chips">
+        <span class="chip">Singleton</span>
+        <span class="chip">Strategy Consumer</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Static Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name vis-static">instance</span><span class="vis-type">: volatile ParkingLot</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name vis-static">lock</span><span class="vis-type">: final Object</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Instance Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">parkingFloors</span><span class="vis-type">: List&lt;ParkingFloor&gt;</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">feeStrategy</span><span class="vis-type">: FeeStrategy</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">spotAllocationStrategy</span><span class="vis-type">: SpotAllocationStrategy</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">activeTickets</span><span class="vis-type">: ConcurrentHashMap&lt;String, ParkingTicket&gt;</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-static">getInstance</span><span class="vis-param">() : ParkingLot</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">initialize</span><span class="vis-param">(floors, feeStrategy, spotStrategy) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">parkVehicle</span><span class="vis-param">(vehicle) : ParkingTicket</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">unparkVehicle</span><span class="vis-param">(ticketId) : double</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">setFeeStrategy</span><span class="vis-param">(strategy) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">setAllocationStrategy</span><span class="vis-param">(strategy) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">displayAvailability</span><span class="vis-param">() : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-static">resetInstance</span><span class="vis-param">() : void</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ EXCEPTIONS ═══════════════════════════ -->
+<div class="section-label">exceptions package</div>
+<div class="row">
+
+  <div class="uml-box exception-box">
+    <div class="uml-head">
+      <span class="stereotype">«exception»</span>
+      <span class="classname">ParkingException</span>
+      <span class="pkg">exceptions</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Inherits</div>
+      <div class="uml-row"><span class="vis-type">extends RuntimeException</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Constructor</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">ParkingException</span><span class="vis-param">(message) → super(message)</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ RELATIONSHIPS ═══════════════════════════ -->
+<div class="rel-section">
+  <h2>Relationships</h2>
+  <table class="rel-table">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>Type</th>
+        <th>To</th>
+        <th>Detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="src-name">Bike</span></td>
+        <td><span class="rel-type r-inherit">Inheritance</span></td>
+        <td><span class="tgt-name">Vehicle</span></td>
+        <td>extends · hardcodes SMALL</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">Car</span></td>
+        <td><span class="rel-type r-inherit">Inheritance</span></td>
+        <td><span class="tgt-name">Vehicle</span></td>
+        <td>extends · hardcodes MEDIUM</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">Truck</span></td>
+        <td><span class="rel-type r-inherit">Inheritance</span></td>
+        <td><span class="tgt-name">Vehicle</span></td>
+        <td>extends · hardcodes LARGE</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">HourlyFeeStrategy</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">FeeStrategy</span></td>
+        <td>calculateFee = duration × rate</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">FlatRateFeeStrategy</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">FeeStrategy</span></td>
+        <td>calculateFee = constant flatRate</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">NearestFirstStrategy</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">SpotAllocationStrategy</span></td>
+        <td>first available on floor 1→N</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">BestFitStrategy</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">SpotAllocationStrategy</span></td>
+        <td>exact size first, then next larger</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingException</span></td>
+        <td><span class="rel-type r-inherit">Inheritance</span></td>
+        <td><span class="tgt-name">RuntimeException</span></td>
+        <td>unchecked — thrown on bad park/unpark</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingFloor</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">ParkingSpot</span></td>
+        <td>owns List&lt;ParkingSpot&gt; — created in constructor</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingTicket</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">Vehicle</span></td>
+        <td>holds ref to parked vehicle</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingTicket</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">ParkingSpot</span></td>
+        <td>holds ref to occupied spot</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingSpot</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">Vehicle</span></td>
+        <td>0..1 parkedVehicle (nullable)</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingSpot</span></td>
+        <td><span class="rel-type r-uses">Uses</span></td>
+        <td><span class="tgt-name">VehicleSize</span></td>
+        <td>spotSize field + canVehicleFit()</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">Vehicle</span></td>
+        <td><span class="rel-type r-uses">Uses</span></td>
+        <td><span class="tgt-name">VehicleSize</span></td>
+        <td>size field</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingLot</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">ParkingFloor</span></td>
+        <td>owns List&lt;ParkingFloor&gt;</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingLot</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">ParkingTicket</span></td>
+        <td>ConcurrentHashMap&lt;String,ParkingTicket&gt; activeTickets</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingLot</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">FeeStrategy</span></td>
+        <td>injected via initialize() / setFeeStrategy()</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingLot</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">SpotAllocationStrategy</span></td>
+        <td>injected via initialize() / setAllocationStrategy()</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingLot</span></td>
+        <td><span class="rel-type r-dep">Dependency</span></td>
+        <td><span class="tgt-name">ParkingException</span></td>
+        <td>throws on no-spot / invalid ticket</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ParkingSpot</span></td>
+        <td><span class="rel-type r-dep">Dependency</span></td>
+        <td><span class="tgt-name">ParkingException</span></td>
+        <td>throws on double-park / empty unpark</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════ LEGEND ═══════════════════════════ -->
+<div class="legend">
+  <div class="legend-card"><div class="legend-dot dot-entity"></div>entity package</div>
+  <div class="legend-card"><div class="legend-dot dot-enum"></div>enum (VehicleSize)</div>
+  <div class="legend-card"><div class="legend-dot dot-fee"></div>strategy.fee package</div>
+  <div class="legend-card"><div class="legend-dot dot-spot"></div>strategy.spot package</div>
+  <div class="legend-card"><div class="legend-dot dot-singleton"></div>singleton package</div>
+  <div class="legend-card"><div class="legend-dot dot-exception"></div>exceptions package</div>
+  <div class="legend-card"><span style="color:#60a5fa; font-size:0.7rem; font-weight:700;">sync</span>&nbsp;synchronized method</div>
+  <div class="legend-card"><span style="font-style:italic; font-size:0.7rem; color:#94a3b8;">italic name</span>&nbsp;abstract / interface method</div>
+  <div class="legend-card"><span style="text-decoration:underline; font-size:0.7rem; color:#94a3b8;">underline</span>&nbsp;static member</div>
+  <div class="legend-card"><span style="color:#4ade80; font-weight:700;">+</span>&nbsp;public &nbsp;<span style="color:#f87171; font-weight:700;">-</span>&nbsp;private &nbsp;<span style="color:#fb923c; font-weight:700;">#</span>&nbsp;protected</div>
+</div>
+
+</body>
+</html>

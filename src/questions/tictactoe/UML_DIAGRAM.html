@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>TicTacToe — UML Class Diagram</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',system-ui,sans-serif;padding:40px 20px 80px;min-height:100vh}
+
+/* ── Header ── */
+.header{text-align:center;margin-bottom:40px}
+.badge{display:inline-block;background:#161b22;border:1px solid #30363d;border-radius:999px;padding:5px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#7c6af7;margin-bottom:16px}
+.header h1{font-size:clamp(24px,4vw,42px);font-weight:700;background:linear-gradient(135deg,#a78bfa,#38bdf8,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.header p{color:#8b949e;font-size:14px}
+
+/* ── Pattern chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:40px}
+.chip{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid}
+.chip-s{background:rgba(124,106,247,.12);border-color:rgba(124,106,247,.4);color:#a78bfa}
+.chip-o{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.4);color:#38bdf8}
+.chip-f{background:rgba(247,132,106,.12);border-color:rgba(247,132,106,.4);color:#f7846a}
+.chip-i{background:rgba(247,197,106,.12);border-color:rgba(247,197,106,.4);color:#f7c56a}
+
+/* ── Canvas ── */
+.canvas-wrap{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:32px;overflow-x:auto;box-shadow:0 0 60px rgba(124,106,247,.15)}
+.canvas-title{font-size:12px;font-family:monospace;color:#8b949e;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #30363d}
+
+/* ── UML Box ── */
+.uml-box{display:inline-flex;flex-direction:column;border:1px solid #30363d;border-radius:8px;min-width:190px;font-size:12px;background:#0d1117;vertical-align:top}
+.uml-box.facade-box  {border-color:#f7846a44;box-shadow:0 0 12px rgba(247,132,106,.12)}
+.uml-box.entity-box  {border-color:#7c6af744;box-shadow:0 0 12px rgba(124,106,247,.12)}
+.uml-box.observer-box{border-color:#38bdf844;box-shadow:0 0 12px rgba(56,189,248,.12)}
+.uml-box.strategy-box{border-color:#34d39944;box-shadow:0 0 12px rgba(52,211,153,.12)}
+.uml-box.util-box    {border-color:#30363d}
+.uml-box.enum-box    {border-color:#f7c56a44;box-shadow:0 0 12px rgba(247,197,106,.12)}
+
+.uml-head{padding:8px 12px;border-bottom:1px solid #30363d;text-align:center;font-weight:700;font-size:13px}
+.uml-head .stereotype{display:block;font-size:10px;font-weight:400;color:#8b949e;font-style:italic;margin-bottom:2px}
+.uml-head .classname{color:#e6edf3}
+.uml-head .pkg{display:block;font-size:9px;color:#484f58;margin-top:2px;font-weight:400}
+
+.uml-section{padding:6px 12px;border-bottom:1px solid #21262d}
+.uml-section:last-child{border-bottom:none}
+.uml-row{padding:2px 0;font-family:'Courier New',monospace;font-size:11px;white-space:nowrap}
+.vis-pub{color:#34d399}
+.vis-pri{color:#f7846a}
+.vis-type{color:#38bdf8}
+.vis-param{color:#8b949e}
+.enum-val{color:#f7c56a;padding:2px 0;font-family:monospace;font-size:11px}
+
+/* ── Layout sections ── */
+.diagram{position:relative}
+.row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px;align-items:flex-start}
+.row.center{justify-content:center}
+.row.spread{justify-content:space-around}
+
+/* ── Relationship key ── */
+.rel-key{margin-top:24px;padding-top:20px;border-top:1px solid #21262d;display:flex;flex-wrap:wrap;gap:20px;font-size:11px;color:#8b949e}
+.rel-item{display:flex;align-items:center;gap:8px}
+.rel-line{width:40px;height:2px;position:relative}
+.rel-solid{background:#7c6af7}
+.rel-dashed{background:repeating-linear-gradient(90deg,#7c6af7 0,#7c6af7 4px,transparent 4px,transparent 8px)}
+.arrow-open::after{content:'▷';color:#7c6af7;font-size:10px}
+.arrow-fill::after{content:'▶';color:#34d399;font-size:10px}
+
+/* ── Legend cards ── */
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:32px}
+.lcard{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;display:flex;gap:12px;align-items:flex-start}
+.lcard-icon{font-size:20px;flex-shrink:0}
+.lcard h3{font-size:12px;font-weight:600;margin-bottom:4px}
+.lcard p{font-size:11px;color:#8b949e;line-height:1.5}
+
+footer{text-align:center;color:#484f58;font-size:11px;margin-top:48px}
+
+/* ── SVG arrows ── */
+svg.arrows{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">♟ Design Patterns — LLD</div>
+  <h1>TicTacToe Class Diagram</h1>
+  <p>entities · strategy · observer · facade · singleton — all packages</p>
+</div>
+
+<div class="chips">
+  <span class="chip chip-s">Strategy Pattern</span>
+  <span class="chip chip-o">Observer Pattern</span>
+  <span class="chip chip-f">Facade Pattern</span>
+  <span class="chip chip-i">Singleton Pattern</span>
+</div>
+
+<div class="canvas-wrap">
+  <div class="canvas-title">questions/tictactoe — UML Class Diagram</div>
+
+  <!-- ── ROW 1: Client + Facade ── -->
+  <div class="row center" style="gap:32px;margin-bottom:32px">
+
+    <!-- Client -->
+    <div class="uml-box util-box">
+      <div class="uml-head">
+        <span class="classname">Client</span>
+        <span class="pkg">tictactoe</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">main</span><span class="vis-param">() : void</span></div>
+      </div>
+    </div>
+
+    <!-- TicTacToeSystem -->
+    <div class="uml-box facade-box">
+      <div class="uml-head">
+        <span class="stereotype">«Facade · Singleton»</span>
+        <span class="classname" style="color:#f7846a">TicTacToeSystem</span>
+        <span class="pkg">facade</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pri">-</span> instance : <span class="vis-type">TicTacToeSystem</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> scorecard : <span class="vis-type">Scorecard</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> currentGame : <span class="vis-type">Game</span></div>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getInstance</span><span class="vis-param">() : TicTacToeSystem</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">createGame</span><span class="vis-param">(p1,p2,size) : Game</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">makeMove</span><span class="vis-param">(player,row,col)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getGameStatus</span><span class="vis-param">() : GameStatus</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">printScoreboard</span><span class="vis-param">()</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── ROW 2: Game (center) ── -->
+  <div class="row center" style="margin-bottom:32px">
+    <div class="uml-box entity-box" style="min-width:240px">
+      <div class="uml-head">
+        <span class="classname" style="color:#a78bfa">Game</span>
+        <span class="pkg">entity</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pri">-</span> board : <span class="vis-type">Board</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> players : <span class="vis-type">List&lt;Player&gt;</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> winningStrategies : <span class="vis-type">List&lt;WinningStrategy&gt;</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> gameObservers : <span class="vis-type">List&lt;GameObserver&gt;</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> currentPlayerIndex : <span class="vis-type">int</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> status : <span class="vis-type">GameStatus</span></div>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">move</span><span class="vis-param">(row,col) : void</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">addObserver</span><span class="vis-param">(observer)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">removeObserver</span><span class="vis-param">(observer)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">notifyObservers</span><span class="vis-param">()</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getBoard</span><span class="vis-param">() : Board</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getCurrentPlayer</span><span class="vis-param">() : Player</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getStatus</span><span class="vis-param">() : GameStatus</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getWinner</span><span class="vis-param">() : Player</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ROW 3: Board + Player + GameStatus ── -->
+  <div class="row center" style="gap:20px;margin-bottom:32px">
+
+    <div class="uml-box entity-box">
+      <div class="uml-head">
+        <span class="classname" style="color:#a78bfa">Board</span>
+        <span class="pkg">entity</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pri">-</span> size : <span class="vis-type">int</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> board : <span class="vis-type">Cell[][]</span></div>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">placeSymbol</span><span class="vis-param">(r,c,sym)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">isCellAvailable</span><span class="vis-param">(r,c)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">isBoardFull</span><span class="vis-param">() : boolean</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getCell</span><span class="vis-param">(r,c) : Cell</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getSize</span><span class="vis-param">() : int</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">printBoard</span><span class="vis-param">()</span></div>
+      </div>
+    </div>
+
+    <div class="uml-box entity-box">
+      <div class="uml-head">
+        <span class="classname" style="color:#a78bfa">Player</span>
+        <span class="pkg">entity</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pri">-</span> name : <span class="vis-type">String</span></div>
+        <div class="uml-row"><span class="vis-pri">-</span> symbol : <span class="vis-type">Symbol</span></div>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getName</span><span class="vis-param">() : String</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getSymbol</span><span class="vis-param">() : Symbol</span></div>
+      </div>
+    </div>
+
+    <div class="uml-box enum-box">
+      <div class="uml-head">
+        <span class="stereotype">«enumeration»</span>
+        <span class="classname" style="color:#f7c56a">GameStatus</span>
+        <span class="pkg">entity</span>
+      </div>
+      <div class="uml-section">
+        <div class="enum-val">IN_PROGRESS</div>
+        <div class="enum-val">WINNER_X</div>
+        <div class="enum-val">WINNER_O</div>
+        <div class="enum-val">DRAW</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── ROW 4: Cell + Symbol ── -->
+  <div class="row center" style="gap:20px;margin-bottom:32px">
+
+    <div class="uml-box entity-box">
+      <div class="uml-head">
+        <span class="classname" style="color:#a78bfa">Cell</span>
+        <span class="pkg">entity</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pri">-</span> symbol : <span class="vis-type">Symbol</span></div>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getSymbol</span><span class="vis-param">() : Symbol</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">setSymbol</span><span class="vis-param">(symbol)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">isEmpty</span><span class="vis-param">() : boolean</span></div>
+      </div>
+    </div>
+
+    <div class="uml-box enum-box">
+      <div class="uml-head">
+        <span class="stereotype">«enumeration»</span>
+        <span class="classname" style="color:#f7c56a">Symbol</span>
+        <span class="pkg">entity</span>
+      </div>
+      <div class="uml-section">
+        <div class="enum-val">X</div>
+        <div class="enum-val">O</div>
+        <div class="enum-val">EMPTY</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── ROW 5: Observer ── -->
+  <div class="row center" style="gap:20px;margin-bottom:32px">
+
+    <div class="uml-box observer-box">
+      <div class="uml-head">
+        <span class="stereotype">«interface»</span>
+        <span class="classname" style="color:#38bdf8">GameObserver</span>
+        <span class="pkg">observer</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">update</span><span class="vis-param">(game) : void</span></div>
+      </div>
+    </div>
+
+    <div class="uml-box observer-box">
+      <div class="uml-head">
+        <span class="classname" style="color:#38bdf8">Scorecard</span>
+        <span class="pkg">observer</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pri">-</span> scoreboard : <span class="vis-type">ConcurrentHashMap</span></div>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">update</span><span class="vis-param">(game)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">recordWin</span><span class="vis-param">(player)</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">getScore</span><span class="vis-param">(name) : int</span></div>
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">printScoreboard</span><span class="vis-param">()</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── ROW 6: Strategy ── -->
+  <div class="row center" style="gap:20px;margin-bottom:24px">
+
+    <div class="uml-box strategy-box">
+      <div class="uml-head">
+        <span class="stereotype">«interface»</span>
+        <span class="classname" style="color:#34d399">WinningStrategy</span>
+        <span class="pkg">strategy</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">checkWin</span><span class="vis-param">(board,r,c,sym) : boolean</span></div>
+      </div>
+    </div>
+
+    <div class="uml-box strategy-box">
+      <div class="uml-head">
+        <span class="classname" style="color:#34d399">RowWinningStrategy</span>
+        <span class="pkg">strategy</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">checkWin</span><span class="vis-param">(board,r,c,sym) : boolean</span></div>
+      </div>
+    </div>
+
+    <div class="uml-box strategy-box">
+      <div class="uml-head">
+        <span class="classname" style="color:#34d399">ColumnWinningStrategy</span>
+        <span class="pkg">strategy</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">checkWin</span><span class="vis-param">(board,r,c,sym) : boolean</span></div>
+      </div>
+    </div>
+
+    <div class="uml-box strategy-box">
+      <div class="uml-head">
+        <span class="classname" style="color:#34d399">DiagonalWinningStrategy</span>
+        <span class="pkg">strategy</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">checkWin</span><span class="vis-param">(board,r,c,sym) : boolean</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── ROW 7: Exception ── -->
+  <div class="row center" style="gap:20px;margin-bottom:24px">
+    <div class="uml-box util-box">
+      <div class="uml-head">
+        <span class="classname">InvalidMoveException</span>
+        <span class="pkg">exceptions</span>
+      </div>
+      <div class="uml-section">
+        <div class="uml-row"><span class="vis-pub">+</span> <span class="vis-type">InvalidMoveException</span><span class="vis-param">(message)</span></div>
+      </div>
+    </div>
+    <div class="uml-box util-box">
+      <div class="uml-head">
+        <span class="classname">RuntimeException</span>
+        <span class="pkg">java.lang</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Relationship legend ── -->
+  <div style="margin-top:24px;padding-top:20px;border-top:1px solid #21262d">
+    <div style="font-size:12px;font-weight:600;color:#8b949e;margin-bottom:12px">Relationships</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;font-size:11px;color:#8b949e">
+      <span>── → &nbsp;<b>Association / has</b></span>
+      <span>◆── &nbsp;<b>Composition</b></span>
+      <span>◇── &nbsp;<b>Aggregation</b></span>
+      <span>- - ▷ &nbsp;<b>Implements (interface)</b></span>
+      <span>──▷ &nbsp;<b>Extends (inheritance)</b></span>
+      <span>- - → &nbsp;<b>Dependency (uses)</b></span>
+    </div>
+
+    <div style="margin-top:20px;font-size:12px;color:#8b949e;line-height:1.9">
+      <div><span style="color:#f7846a;font-weight:600">TicTacToeSystem</span> ──→ <span style="color:#a78bfa">Game</span> &nbsp;(manages) &nbsp;·&nbsp; ──→ <span style="color:#38bdf8">Scorecard</span> (has)</div>
+      <div><span style="color:#a78bfa">Game</span> ◆──→ <span style="color:#a78bfa">Board</span> (composition) &nbsp;·&nbsp; ◆──→ <span style="color:#a78bfa">Player ×2</span></div>
+      <div><span style="color:#a78bfa">Game</span> ◇──→ <span style="color:#34d399">WinningStrategy list</span> &nbsp;·&nbsp; ◇──→ <span style="color:#38bdf8">GameObserver list</span></div>
+      <div><span style="color:#a78bfa">Board</span> ◆──→ <span style="color:#a78bfa">Cell n×n</span> &nbsp;·&nbsp; <span style="color:#a78bfa">Cell</span> ──→ <span style="color:#f7c56a">Symbol</span> &nbsp;·&nbsp; <span style="color:#a78bfa">Player</span> ──→ <span style="color:#f7c56a">Symbol</span></div>
+      <div><span style="color:#38bdf8">Scorecard</span> - -▷ <span style="color:#38bdf8">GameObserver</span> (implements)</div>
+      <div><span style="color:#34d399">Row/Column/DiagonalWinningStrategy</span> - -▷ <span style="color:#34d399">WinningStrategy</span> (implements)</div>
+      <div><span style="color:#e6edf3">InvalidMoveException</span> ──▷ RuntimeException (extends)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Legend cards ── -->
+<div class="legend" style="max-width:1200px;margin:32px auto 0">
+  <div class="lcard">
+    <span class="lcard-icon">🎯</span>
+    <div>
+      <h3 style="color:#a78bfa">Strategy Pattern</h3>
+      <p>WinningStrategy interface — Row, Column, Diagonal swap without changing Game.</p>
+    </div>
+  </div>
+  <div class="lcard">
+    <span class="lcard-icon">👁</span>
+    <div>
+      <h3 style="color:#38bdf8">Observer Pattern</h3>
+      <p>Game notifies GameObservers on WIN/DRAW. Scorecard updates scores reactively.</p>
+    </div>
+  </div>
+  <div class="lcard">
+    <span class="lcard-icon">🏛</span>
+    <div>
+      <h3 style="color:#f7846a">Facade Pattern</h3>
+      <p>TicTacToeSystem hides Game + Scorecard behind createGame/makeMove/getStatus.</p>
+    </div>
+  </div>
+  <div class="lcard">
+    <span class="lcard-icon">🔒</span>
+    <div>
+      <h3 style="color:#f7c56a">Singleton Pattern</h3>
+      <p>TicTacToeSystem uses double-checked locking with volatile for one instance.</p>
+    </div>
+  </div>
+  <div class="lcard">
+    <span class="lcard-icon">⚡</span>
+    <div>
+      <h3 style="color:#67e8f9">Thread Safety</h3>
+      <p>move() synchronized · ConcurrentHashMap in Scorecard · CopyOnWriteArrayList for observers.</p>
+    </div>
+  </div>
+  <div class="lcard">
+    <span class="lcard-icon">📦</span>
+    <div>
+      <h3 style="color:#34d399">5 Packages</h3>
+      <p>entity · strategy · observer · facade · exceptions — clean separation of concerns.</p>
+    </div>
+  </div>
+</div>
+
+<footer>design-patterns/src/questions/tictactoe · 2026</footer>
+
+</body>
+</html>
