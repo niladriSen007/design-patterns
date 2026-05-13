@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library Management — UML Class Diagram</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #475569;
+    margin: 36px 0 14px 4px;
+    padding-left: 10px;
+    border-left: 3px solid #334155;
+  }
+
+  /* ── ROW / GRID ── */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+
+  /* ── UML BOX BASE ── */
+  .uml-box {
+    border-radius: 10px;
+    border: 1.5px solid;
+    min-width: 220px;
+    flex: 1 1 220px;
+    max-width: 360px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .uml-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  /* ── HEADER ── */
+  .uml-head {
+    padding: 10px 14px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stereotype {
+    font-size: 0.67rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    opacity: 0.75;
+    font-style: italic;
+  }
+  .classname {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .pkg {
+    font-size: 0.62rem;
+    opacity: 0.5;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+  .pattern-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 5px;
+  }
+  .chip {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 20px;
+    border: 1px solid;
+    opacity: 0.85;
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .uml-section {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 14px;
+  }
+  .section-title {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.4;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+
+  /* ── MEMBERS ── */
+  .uml-row {
+    font-size: 0.72rem;
+    padding: 2px 0;
+    display: flex;
+    gap: 4px;
+    align-items: baseline;
+    line-height: 1.4;
+  }
+  .vis-pub   { color: #4ade80; font-weight: 700; font-size: 0.75rem; }
+  .vis-priv  { color: #f87171; font-weight: 700; font-size: 0.75rem; }
+  .vis-prot  { color: #fb923c; font-weight: 700; font-size: 0.75rem; }
+  .vis-name  { color: #e2e8f0; }
+  .vis-type  { color: #94a3b8; font-size: 0.68rem; }
+  .vis-param { color: #64748b; font-size: 0.67rem; font-style: italic; }
+  .vis-static   { text-decoration: underline; }
+  .vis-abstract { font-style: italic; }
+  .badge-sync {
+    font-size: 0.55rem;
+    background: #1e3a5f;
+    color: #60a5fa;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-left: 2px;
+  }
+  .note-row {
+    font-size: 0.65rem;
+    color: #475569;
+    font-style: italic;
+    padding: 2px 0 2px 14px;
+    line-height: 1.35;
+  }
+
+  /* ════════════════ COLOR THEMES ════════════════ */
+
+  /* Entity — violet */
+  .entity-box { background: linear-gradient(145deg, #1e1030, #16092a); border-color: #6d28d9; }
+  .entity-box .uml-head { background: linear-gradient(135deg, #2d1458, #1e0d40); }
+  .entity-box .stereotype { color: #a78bfa; }
+  .entity-box .classname  { color: #ddd6fe; }
+  .entity-box .chip { border-color: #7c3aed; color: #c4b5fd; background: rgba(109,40,217,0.2); }
+
+  /* Enum — amber */
+  .enum-box { background: linear-gradient(145deg, #1c1508, #130f04); border-color: #d97706; }
+  .enum-box .uml-head { background: linear-gradient(135deg, #3d2a05, #2a1d04); }
+  .enum-box .stereotype { color: #fbbf24; }
+  .enum-box .classname  { color: #fde68a; }
+  .enum-box .chip { border-color: #b45309; color: #fcd34d; background: rgba(180,83,9,0.2); }
+
+  /* Observer — rose/pink */
+  .observer-box { background: linear-gradient(145deg, #1a0818, #130612); border-color: #db2777; }
+  .observer-box .uml-head { background: linear-gradient(135deg, #4a0d2f, #35091f); }
+  .observer-box .stereotype { color: #f472b6; }
+  .observer-box .classname  { color: #fbcfe8; }
+  .observer-box .chip { border-color: #9d174d; color: #f9a8d4; background: rgba(219,39,119,0.2); }
+
+  /* State — sky/teal */
+  .state-box { background: linear-gradient(145deg, #041820, #031218); border-color: #0891b2; }
+  .state-box .uml-head { background: linear-gradient(135deg, #063d50, #042e3c); }
+  .state-box .stereotype { color: #22d3ee; }
+  .state-box .classname  { color: #a5f3fc; }
+  .state-box .chip { border-color: #0e7490; color: #67e8f9; background: rgba(8,145,178,0.2); }
+
+  /* Strategy — emerald */
+  .strategy-box { background: linear-gradient(145deg, #061812, #04130d); border-color: #059669; }
+  .strategy-box .uml-head { background: linear-gradient(135deg, #063d24, #042e1a); }
+  .strategy-box .stereotype { color: #34d399; }
+  .strategy-box .classname  { color: #a7f3d0; }
+  .strategy-box .chip { border-color: #065f46; color: #6ee7b7; background: rgba(5,150,105,0.2); }
+
+  /* Factory — orange */
+  .factory-box { background: linear-gradient(145deg, #1a0f04, #130b03); border-color: #ea580c; }
+  .factory-box .uml-head { background: linear-gradient(135deg, #431408, #2f0e06); }
+  .factory-box .stereotype { color: #fb923c; }
+  .factory-box .classname  { color: #fed7aa; }
+  .factory-box .chip { border-color: #c2410c; color: #fdba74; background: rgba(234,88,12,0.2); }
+
+  /* Singleton/Facade — gold */
+  .singleton-box { background: linear-gradient(145deg, #1a1504, #120f03); border-color: #ca8a04; }
+  .singleton-box .uml-head { background: linear-gradient(135deg, #3d3005, #2a2203); }
+  .singleton-box .stereotype { color: #facc15; }
+  .singleton-box .classname  { color: #fef08a; }
+  .singleton-box .chip { border-color: #a16207; color: #fde047; background: rgba(202,138,4,0.2); }
+
+  /* ── RELATIONSHIPS TABLE ── */
+  .rel-section {
+    margin-top: 48px;
+    background: #131821;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 28px 32px;
+  }
+  .rel-section h2 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 20px;
+  }
+  .rel-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+  .rel-table th {
+    text-align: left;
+    padding: 7px 12px;
+    background: #1e293b;
+    color: #64748b;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .rel-table th:first-child { border-radius: 6px 0 0 6px; }
+  .rel-table th:last-child  { border-radius: 0 6px 6px 0; }
+  .rel-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #1e2535;
+    color: #cbd5e1;
+    vertical-align: middle;
+  }
+  .rel-table tr:last-child td { border-bottom: none; }
+  .rel-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .rel-type {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .r-inherit  { background: #2d1458; color: #c4b5fd; border: 1px solid #6d28d9; }
+  .r-impl     { background: #063d24; color: #6ee7b7; border: 1px solid #059669; }
+  .r-compose  { background: #1e2d40; color: #7dd3fc; border: 1px solid #0284c7; }
+  .r-assoc    { background: #2a1d04; color: #fcd34d; border: 1px solid #d97706; }
+  .r-dep      { background: #1a0f04; color: #fdba74; border: 1px solid #ea580c; }
+  .r-uses     { background: #1a0810; color: #fda4af; border: 1px solid #e11d48; }
+  .r-observer { background: #200d1f; color: #f9a8d4; border: 1px solid #db2777; }
+
+  .src-name { color: #a5b4fc; font-weight: 600; }
+  .tgt-name { color: #67e8f9; font-weight: 600; }
+
+  /* ── PATTERN BANNER ── */
+  .pattern-banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 36px;
+    justify-content: center;
+  }
+  .pattern-pill {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid;
+  }
+  .pp-singleton { background: rgba(202,138,4,0.12); border-color: #ca8a04; color: #facc15; }
+  .pp-observer  { background: rgba(219,39,119,0.12); border-color: #db2777; color: #f472b6; }
+  .pp-state     { background: rgba(8,145,178,0.12);  border-color: #0891b2; color: #22d3ee; }
+  .pp-strategy  { background: rgba(5,150,105,0.12);  border-color: #059669; color: #34d399; }
+  .pp-factory   { background: rgba(234,88,12,0.12);  border-color: #ea580c; color: #fb923c; }
+  .pp-facade    { background: rgba(109,40,217,0.12); border-color: #6d28d9; color: #a78bfa; }
+
+  /* ── LEGEND ── */
+  .legend {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .legend-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #131821;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    color: #94a3b8;
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-entity   { background: #7c3aed; }
+  .dot-enum     { background: #d97706; }
+  .dot-observer { background: #db2777; }
+  .dot-state    { background: #0891b2; }
+  .dot-strategy { background: #059669; }
+  .dot-factory  { background: #ea580c; }
+  .dot-singleton{ background: #ca8a04; }
+
+  /* ── STATE FLOW ── */
+  .state-flow {
+    margin-top: 36px;
+    background: #0d1520;
+    border: 1px solid #1e3a5f;
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .state-flow h2 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 20px;
+  }
+  .flow-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 10px;
+  }
+  .flow-state {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .fs-available  { background: rgba(5,150,105,0.2); border: 1px solid #059669; color: #34d399; }
+  .fs-checkedout { background: rgba(234,88,12,0.2); border: 1px solid #ea580c; color: #fb923c; }
+  .fs-onhold     { background: rgba(202,138,4,0.2); border: 1px solid #ca8a04; color: #facc15; }
+  .flow-arrow {
+    font-size: 0.72rem;
+    color: #334155;
+    padding: 0 8px;
+    white-space: nowrap;
+  }
+  .flow-label {
+    font-size: 0.65rem;
+    color: #475569;
+    font-style: italic;
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<h1>Library Management System</h1>
+<div class="subtitle">UML Class Diagram &nbsp;·&nbsp; Java Implementation</div>
+
+<!-- Pattern Badges -->
+<div class="pattern-banner">
+  <span class="pattern-pill pp-singleton">Singleton — TransactionService &amp; LibraryManagement</span>
+  <span class="pattern-pill pp-observer">Observer — LibraryItem → Member</span>
+  <span class="pattern-pill pp-state">State — ItemState (Available / CheckedOut / OnHold)</span>
+  <span class="pattern-pill pp-strategy">Strategy — SearchStrategy</span>
+  <span class="pattern-pill pp-factory">Factory — ItemFactory</span>
+  <span class="pattern-pill pp-facade">Facade — LibraryManagement</span>
+</div>
+
+<!-- ═══════════════════════════ ENTITY ═══════════════════════════ -->
+<div class="section-label">entity package</div>
+<div class="row">
+
+  <!-- LibraryItem (abstract) -->
+  <div class="uml-box entity-box" style="max-width: 380px;">
+    <div class="uml-head">
+      <span class="stereotype">«abstract class»</span>
+      <span class="classname">LibraryItem</span>
+      <span class="pkg">entity</span>
+      <div class="pattern-chips">
+        <span class="chip">Observable</span>
+        <span class="chip">Template Method</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">id</span><span class="vis-type">: final String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">title</span><span class="vis-type">: final String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">observers</span><span class="vis-type">: CopyOnWriteArrayList&lt;Member&gt;</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">bookOrMagazineCopies</span><span class="vis-type">: List&lt;BookOrMagazineCopy&gt;</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">addObserver</span><span class="vis-param">(member) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">removeObserver</span><span class="vis-param">(member) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">notifyObservers</span><span class="vis-param">() : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">addCopy</span><span class="vis-param">(copy) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getAvailableCopy</span><span class="vis-param">() : BookOrMagazineCopy</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getAvailableCopyCount</span><span class="vis-param">() : long</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">isObserver</span><span class="vis-param">(member) : boolean</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">hasObservers</span><span class="vis-param">() : boolean</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">getAuthorOrPublisher</span><span class="vis-param">() : String</span></div>
+    </div>
+  </div>
+
+  <!-- Book -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">Book</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">author</span><span class="vis-type">: final String</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getAuthorOrPublisher</span><span class="vis-param">() : String</span></div>
+      <div class="note-row">→ returns author field</div>
+    </div>
+  </div>
+
+  <!-- Magazine -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">Magazine</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">publisher</span><span class="vis-type">: final String</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getAuthorOrPublisher</span><span class="vis-param">() : String</span></div>
+      <div class="note-row">→ returns publisher field</div>
+    </div>
+  </div>
+
+  <!-- ItemType enum -->
+  <div class="uml-box enum-box">
+    <div class="uml-head">
+      <span class="stereotype">«enumeration»</span>
+      <span class="classname">ItemType</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Values</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">BOOK</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">MAGAZINE</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="row">
+
+  <!-- BookOrMagazineCopy -->
+  <div class="uml-box entity-box" style="max-width: 380px;">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">BookOrMagazineCopy</span>
+      <span class="pkg">entity</span>
+      <div class="pattern-chips">
+        <span class="chip">Context (State)</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">id</span><span class="vis-type">: final String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">item</span><span class="vis-type">: final LibraryItem</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">currentState</span><span class="vis-type">: ItemState</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">changeCurrentState</span><span class="vis-param">(state) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">isCopyAvailable</span><span class="vis-param">(copy) : boolean</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">checkoutItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">returnItem</span><span class="vis-param">(copy) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">holdItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getId</span><span class="vis-param">() : String</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getItem</span><span class="vis-param">() : LibraryItem</span></div>
+    </div>
+  </div>
+
+  <!-- Borrow -->
+  <div class="uml-box entity-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">Borrow</span>
+      <span class="pkg">entity</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">bookOrMagazineCopy</span><span class="vis-type">: final BookOrMagazineCopy</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">member</span><span class="vis-type">: final Member</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">checkoutDate</span><span class="vis-type">: final LocalDate</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getBookOrMagazineCopy</span><span class="vis-param">() : BookOrMagazineCopy</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getMember</span><span class="vis-param">() : Member</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ OBSERVER ═══════════════════════════ -->
+<div class="section-label">observer package</div>
+<div class="row">
+
+  <!-- Member -->
+  <div class="uml-box observer-box" style="max-width: 380px;">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">Member</span>
+      <span class="pkg">observer</span>
+      <div class="pattern-chips">
+        <span class="chip">Observer</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">memberId</span><span class="vis-type">: final String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">memberName</span><span class="vis-type">: final String</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">memberBorrowRequests</span><span class="vis-type">: List&lt;Borrow&gt;</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">update</span><span class="vis-param">(item: LibraryItem) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">addBorrowRequest</span><span class="vis-param">(borrow) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">removeBorrowRequest</span><span class="vis-param">(borrow) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getMemberId</span><span class="vis-param">() : String</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getMemberName</span><span class="vis-param">() : String</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">getMemberBorrowRequests</span><span class="vis-param">() : List&lt;Borrow&gt;</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ STATE ═══════════════════════════ -->
+<div class="section-label">state package</div>
+<div class="row">
+
+  <!-- ItemState interface -->
+  <div class="uml-box state-box">
+    <div class="uml-head">
+      <span class="stereotype">«interface»</span>
+      <span class="classname">ItemState</span>
+      <span class="pkg">state</span>
+      <div class="pattern-chips">
+        <span class="chip">State</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">checkoutItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">returnItem</span><span class="vis-param">(copy) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">holdItem</span><span class="vis-param">(copy, member) : void</span></div>
+    </div>
+  </div>
+
+  <!-- AvailableState -->
+  <div class="uml-box state-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">AvailableState</span>
+      <span class="pkg">state</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">checkoutItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="note-row">→ creates borrow, → CheckedOutState</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">returnItem</span><span class="vis-param">(copy) : void</span></div>
+      <div class="note-row">→ no-op (already available)</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">holdItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="note-row">→ no-op (item is available)</div>
+    </div>
+  </div>
+
+  <!-- CheckedOutState -->
+  <div class="uml-box state-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">CheckedOutState</span>
+      <span class="pkg">state</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">checkoutItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="note-row">→ no-op (already out)</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">returnItem</span><span class="vis-param">(copy) : void</span></div>
+      <div class="note-row">→ ends borrow; if observers → OnHoldState, else → AvailableState</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">holdItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="note-row">→ addObserver(member)</div>
+    </div>
+  </div>
+
+  <!-- OnHoldState -->
+  <div class="uml-box state-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">OnHoldState</span>
+      <span class="pkg">state</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">checkoutItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="note-row">→ only holder can checkout; removes observer</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">returnItem</span><span class="vis-param">(copy) : void</span></div>
+      <div class="note-row">→ no-op (not checked out)</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">holdItem</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="note-row">→ no-op (already on hold)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ STRATEGY ═══════════════════════════ -->
+<div class="section-label">strategy package</div>
+<div class="row">
+
+  <!-- SearchStrategy interface -->
+  <div class="uml-box strategy-box">
+    <div class="uml-head">
+      <span class="stereotype">«interface»</span>
+      <span class="classname">SearchStrategy</span>
+      <span class="pkg">strategy</span>
+      <div class="pattern-chips">
+        <span class="chip">Strategy</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-abstract">search</span><span class="vis-param">(query, items) : List&lt;LibraryItem&gt;</span></div>
+    </div>
+  </div>
+
+  <!-- SearchByAuthorStrategy -->
+  <div class="uml-box strategy-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">SearchByAuthorStrategy</span>
+      <span class="pkg">strategy</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">search</span><span class="vis-param">(query, items) : List&lt;LibraryItem&gt;</span></div>
+      <div class="note-row">→ filters by getAuthorOrPublisher().contains(query)</div>
+    </div>
+  </div>
+
+  <!-- SearchByTitleStrategy -->
+  <div class="uml-box strategy-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">SearchByTitleStrategy</span>
+      <span class="pkg">strategy</span>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">search</span><span class="vis-param">(query, items) : List&lt;LibraryItem&gt;</span></div>
+      <div class="note-row">→ filters by getTitle().contains(query)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ FACTORY ═══════════════════════════ -->
+<div class="section-label">factory package</div>
+<div class="row">
+
+  <div class="uml-box factory-box">
+    <div class="uml-head">
+      <span class="stereotype">«class»</span>
+      <span class="classname">ItemFactory</span>
+      <span class="pkg">factory</span>
+      <div class="pattern-chips">
+        <span class="chip">Factory Method</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods (static)</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-static">createItem</span><span class="vis-param">(type, id, title, authorOrPublisher) : LibraryItem</span></div>
+      <div class="note-row">→ BOOK → new Book(...)</div>
+      <div class="note-row">→ MAGAZINE → new Magazine(...)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ SINGLETON ═══════════════════════════ -->
+<div class="section-label">singleton package</div>
+<div class="row">
+
+  <div class="uml-box singleton-box" style="max-width: 400px;">
+    <div class="uml-head">
+      <span class="stereotype">«singleton»</span>
+      <span class="classname">TransactionService</span>
+      <span class="pkg">singleton</span>
+      <div class="pattern-chips">
+        <span class="chip">Singleton</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name vis-static">instance</span><span class="vis-type">: volatile TransactionService</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">transactions</span><span class="vis-type">: HashMap&lt;String, Borrow&gt;</span></div>
+      <div class="note-row">key = copy.getId()</div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-static">getInstance</span><span class="vis-param">() : TransactionService</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">createBorrowRequest</span><span class="vis-param">(copy, member) : void</span></div>
+      <div class="note-row">→ throws if already borrowed; creates Borrow; updates member</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">endBorrowRequest</span><span class="vis-param">(copy) : void</span></div>
+      <div class="note-row">→ removes transaction; updates member</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ FACADE ═══════════════════════════ -->
+<div class="section-label">facade package</div>
+<div class="row">
+
+  <div class="uml-box singleton-box" style="max-width: 440px;">
+    <div class="uml-head">
+      <span class="stereotype">«singleton · facade»</span>
+      <span class="classname">LibraryManagement</span>
+      <span class="pkg">facade</span>
+      <div class="pattern-chips">
+        <span class="chip">Singleton</span>
+        <span class="chip">Facade</span>
+        <span class="chip">Strategy Consumer</span>
+      </div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Fields</div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name vis-static">instance</span><span class="vis-type">: volatile LibraryManagement</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">catalog</span><span class="vis-type">: HashMap&lt;String, LibraryItem&gt;</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">members</span><span class="vis-type">: HashMap&lt;String, Member&gt;</span></div>
+      <div class="uml-row"><span class="vis-priv">-</span><span class="vis-name">copies</span><span class="vis-type">: HashMap&lt;String, BookOrMagazineCopy&gt;</span></div>
+    </div>
+    <div class="uml-section">
+      <div class="section-title">Methods</div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name vis-static">getInstance</span><span class="vis-param">() : LibraryManagement</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">addItem</span><span class="vis-param">(type, id, title, author, numCopies) : List&lt;BookOrMagazineCopy&gt;</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">addMember</span><span class="vis-param">(id, name) : Member</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">checkout</span><span class="vis-param">(memberId, copyId) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">returnItem</span><span class="vis-param">(copyId) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">placeHold</span><span class="vis-param">(memberId, itemId) : void</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">search</span><span class="vis-param">(query, strategy) : List&lt;LibraryItem&gt;</span></div>
+      <div class="uml-row"><span class="vis-pub">+</span><span class="vis-name">printCatalog</span><span class="vis-param">() : void</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ STATE TRANSITION FLOW ═══════════════════════════ -->
+<div class="state-flow">
+  <h2>BookOrMagazineCopy State Transitions</h2>
+  <div class="flow-row">
+    <div class="flow-state fs-available">AvailableState</div>
+    <div class="flow-arrow">──── checkoutItem() ────▶</div>
+    <div class="flow-state fs-checkedout">CheckedOutState</div>
+    <div class="flow-arrow">──── holdItem() ────▶</div>
+    <div class="flow-label">observer added, stays CheckedOut</div>
+  </div>
+  <div class="flow-row" style="margin-top: 14px;">
+    <div class="flow-state fs-checkedout">CheckedOutState</div>
+    <div class="flow-arrow">── returnItem() (has observers) ──▶</div>
+    <div class="flow-state fs-onhold">OnHoldState</div>
+    <div class="flow-arrow">── notifyObservers() ──▶</div>
+    <div class="flow-label">members notified</div>
+  </div>
+  <div class="flow-row" style="margin-top: 14px;">
+    <div class="flow-state fs-checkedout">CheckedOutState</div>
+    <div class="flow-arrow">── returnItem() (no observers) ──▶</div>
+    <div class="flow-state fs-available">AvailableState</div>
+  </div>
+  <div class="flow-row" style="margin-top: 14px;">
+    <div class="flow-state fs-onhold">OnHoldState</div>
+    <div class="flow-arrow">── checkoutItem() (by holder) ──▶</div>
+    <div class="flow-state fs-checkedout">CheckedOutState</div>
+    <div class="flow-label">observer removed</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ RELATIONSHIPS ═══════════════════════════ -->
+<div class="rel-section">
+  <h2>Relationships</h2>
+  <table class="rel-table">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>Type</th>
+        <th>To</th>
+        <th>Detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="src-name">Book</span></td>
+        <td><span class="rel-type r-inherit">Inheritance</span></td>
+        <td><span class="tgt-name">LibraryItem</span></td>
+        <td>extends · overrides getAuthorOrPublisher → author</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">Magazine</span></td>
+        <td><span class="rel-type r-inherit">Inheritance</span></td>
+        <td><span class="tgt-name">LibraryItem</span></td>
+        <td>extends · overrides getAuthorOrPublisher → publisher</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">AvailableState</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">ItemState</span></td>
+        <td>checkout → creates borrow &amp; transitions state</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">CheckedOutState</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">ItemState</span></td>
+        <td>return → ends borrow; hold → addObserver</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">OnHoldState</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">ItemState</span></td>
+        <td>checkout only by holder; removes observer after</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">SearchByAuthorStrategy</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">SearchStrategy</span></td>
+        <td>filters by author/publisher field</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">SearchByTitleStrategy</span></td>
+        <td><span class="rel-type r-impl">Implements</span></td>
+        <td><span class="tgt-name">SearchStrategy</span></td>
+        <td>filters by title field</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">LibraryItem</span></td>
+        <td><span class="rel-type r-observer">Observer Subject</span></td>
+        <td><span class="tgt-name">Member</span></td>
+        <td>CopyOnWriteArrayList&lt;Member&gt; observers; calls update()</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">LibraryItem</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">BookOrMagazineCopy</span></td>
+        <td>owns List&lt;BookOrMagazineCopy&gt;; copies self-register on construction</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">BookOrMagazineCopy</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">LibraryItem</span></td>
+        <td>back-ref to parent item (final field)</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">BookOrMagazineCopy</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">ItemState</span></td>
+        <td>currentState field; starts as AvailableState</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">Borrow</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">BookOrMagazineCopy</span></td>
+        <td>holds ref to borrowed copy</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">Borrow</span></td>
+        <td><span class="rel-type r-assoc">Association</span></td>
+        <td><span class="tgt-name">Member</span></td>
+        <td>holds ref to borrowing member</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">Member</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">Borrow</span></td>
+        <td>owns List&lt;Borrow&gt; memberBorrowRequests</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">TransactionService</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">Borrow</span></td>
+        <td>HashMap&lt;String,Borrow&gt; keyed by copy ID</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ItemFactory</span></td>
+        <td><span class="rel-type r-dep">Dependency</span></td>
+        <td><span class="tgt-name">Book / Magazine</span></td>
+        <td>createItem() instantiates based on ItemType switch</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">ItemFactory</span></td>
+        <td><span class="rel-type r-uses">Uses</span></td>
+        <td><span class="tgt-name">ItemType</span></td>
+        <td>switch on enum to pick concrete class</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">LibraryManagement</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">LibraryItem</span></td>
+        <td>catalog HashMap owns all items</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">LibraryManagement</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">Member</span></td>
+        <td>members HashMap owns all members</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">LibraryManagement</span></td>
+        <td><span class="rel-type r-compose">Composition</span></td>
+        <td><span class="tgt-name">BookOrMagazineCopy</span></td>
+        <td>copies HashMap owns all physical copies</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">LibraryManagement</span></td>
+        <td><span class="rel-type r-dep">Dependency</span></td>
+        <td><span class="tgt-name">ItemFactory</span></td>
+        <td>addItem() delegates creation to factory</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">LibraryManagement</span></td>
+        <td><span class="rel-type r-dep">Dependency</span></td>
+        <td><span class="tgt-name">SearchStrategy</span></td>
+        <td>search() accepts strategy as parameter (runtime injection)</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">AvailableState / OnHoldState</span></td>
+        <td><span class="rel-type r-dep">Dependency</span></td>
+        <td><span class="tgt-name">TransactionService</span></td>
+        <td>calls getInstance().createBorrowRequest()</td>
+      </tr>
+      <tr>
+        <td><span class="src-name">CheckedOutState</span></td>
+        <td><span class="rel-type r-dep">Dependency</span></td>
+        <td><span class="tgt-name">TransactionService</span></td>
+        <td>calls getInstance().endBorrowRequest()</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════ LEGEND ═══════════════════════════ -->
+<div class="legend">
+  <div class="legend-card"><div class="legend-dot dot-entity"></div>entity package</div>
+  <div class="legend-card"><div class="legend-dot dot-enum"></div>enum (ItemType)</div>
+  <div class="legend-card"><div class="legend-dot dot-observer"></div>observer package</div>
+  <div class="legend-card"><div class="legend-dot dot-state"></div>state package</div>
+  <div class="legend-card"><div class="legend-dot dot-strategy"></div>strategy package</div>
+  <div class="legend-card"><div class="legend-dot dot-factory"></div>factory package</div>
+  <div class="legend-card"><div class="legend-dot dot-singleton"></div>singleton / facade package</div>
+  <div class="legend-card"><span style="font-style:italic; font-size:0.7rem; color:#94a3b8;">italic name</span>&nbsp;abstract method</div>
+  <div class="legend-card"><span style="text-decoration:underline; font-size:0.7rem; color:#94a3b8;">underline</span>&nbsp;static member</div>
+  <div class="legend-card"><span style="color:#4ade80; font-weight:700;">+</span>&nbsp;public &nbsp;<span style="color:#f87171; font-weight:700;">-</span>&nbsp;private &nbsp;<span style="color:#fb923c; font-weight:700;">#</span>&nbsp;protected</div>
+</div>
+
+</body>
+</html>

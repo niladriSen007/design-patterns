@@ -50,7 +50,7 @@ class CheckoutService {
     }
 }
 
-// if a legacy system comes like this then checkout service won't be able to work with it properly
+// if a legacy system comes like this then checkoutItem service won't be able to work with it properly
 class LegacyGateway {
     private long transactionReference;
     private boolean paymentSuccessful;
