@@ -6,7 +6,7 @@ import questions.librarymanagement.entity.LibraryItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Member {
+public class Member implements ILMSObserver {
 
     private final String memberId;
     private final String memberName;
@@ -18,6 +18,7 @@ public class Member {
         this.memberBorrowRequests = new ArrayList<>();
     }
 
+    @Override
     public void update(LibraryItem item) {
         System.out.println("NOTIFICATION for " + memberName + ": The book '" + item.getTitle() + "' you placed a hold on is now available!");
     }
